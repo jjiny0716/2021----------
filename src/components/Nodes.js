@@ -9,19 +9,15 @@ export default class Nodes extends Component {
     this.state = {
       currentId: null,
       directoryData: [],
-      isLoading: false,
     };
     this.getDirectoryData();
   }
 
   template() {
-    const { directoryData, isLoading } = this.state;
-    const isRoot = directoryData[0] && directoryData[0].parent === null;
+    const { directoryData } = this.state;
+    const isRoot = (directoryData[0] && directoryData[0].parent === null) || directoryData.length === 0;
 
     return `
-    ${
-      !isLoading
-        ? `
     ${
       !isRoot
         ? `
@@ -33,9 +29,8 @@ export default class Nodes extends Component {
     }
     
     ${directoryData.map((node) => this.getNodeElement(node)).join("")}
-    `
-        : "loading..."
-    }
+    
+    
     `;
   }
 
@@ -71,10 +66,6 @@ export default class Nodes extends Component {
   }
 
   async getDirectoryData() {
-    // 로딩중 상호작용 방지
-    const { isLoading } = this.state;
-    if (isLoading) return;
-
     // 캐시된 데이터가 있으면 이용
     const { id } = this.props;
     if (directoryCache[id]) {
@@ -86,7 +77,8 @@ export default class Nodes extends Component {
       return;
     }
 
-    this.setState({ isLoading: true });
+    const { showLoadingUI, removeLoadingUI } = this.props;
+    showLoadingUI();
 
     const directoryData = await (id === null ? directoryClient.getRootDirectory() : directoryClient.getDirectoryById(id));
 
@@ -96,8 +88,8 @@ export default class Nodes extends Component {
     this.setState({
       currentId: id,
       directoryData,
-      isLoading: false,
     });
+    removeLoadingUI();
   }
 
   getNodeElement({ id, type, name }) {
@@ -110,18 +102,4 @@ export default class Nodes extends Component {
     </div>
     `;
   }
-}
-
-{
-  /* <div class="Node">
-      <img src="./assets/prev.png">
-    </div>
-    <div class="Node">
-      <img src="./assets/directory.png">
-      <div>2021/04</div>
-    </div>
-    <div class="Node">
-      <img src="./assets/file.png">
-      <div>하품하는 사진</div>
-    </div> */
 }
