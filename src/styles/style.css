@@ -35,6 +35,11 @@ body {
   flex-direction: column;
   word-break: keep-all;
   cursor: pointer;
+  transition: all 250ms ease;
+}
+
+.Node:hover {
+  transform: scale(1.2);
 }
 
 .Breadcrumb {
@@ -47,7 +52,13 @@ body {
 
 .Breadcrumb > div {
   padding: 4px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: all 250ms ease;
+}
+
+.Breadcrumb > div:hover {
+  background-color: rgba(0, 0, 0, 0.15);
 }
 
 .Breadcrumb > div::after {
@@ -86,5 +97,6 @@ body {
 }
 
 .Modal > div img {
-  max-width: 1000px;
+  max-width: 90vw;
+  max-height: 90vh;
 }

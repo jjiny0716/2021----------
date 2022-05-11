@@ -28,8 +28,6 @@ export default class Nodes extends Component {
     }
     
     ${directoryData.map((node) => this.getNodeElement(node)).join("")}
-    
-    
     `;
   }
 
@@ -70,12 +68,12 @@ export default class Nodes extends Component {
   async getDirectoryData() {
     const { id } = this.props;
     this.currentId = id;
+
     // 캐시된 데이터가 있으면 이용
-    
     if (directoryCache[id]) {
       this.setState({
         directoryData: directoryCache[id],
-        isRoot: !directoryCache[id][0].parent,
+        isRoot: id === null,
       });
 
       return;
@@ -91,7 +89,7 @@ export default class Nodes extends Component {
       directoryCache[id] = directoryData;
       this.setState({
         directoryData,
-        isRoot: !directoryData[0].parent,
+        isRoot: id ===  null,
       });
       removeLoadingUI();
     } catch {
