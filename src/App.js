@@ -19,7 +19,7 @@ export default class App extends Component {
 	}
 
 	template() {
-    const { isImageViewOpen, filePath } = this.state;
+    const { isImageViewOpen } = this.state;
 
 		return `
     <nav class="Breadcrumb" data-component="Breadcrumb"></nav>

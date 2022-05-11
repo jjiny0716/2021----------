@@ -3,20 +3,12 @@ import Component from '../core/Component.js';
 const API_ENDPOINT = "https://fe-dev-matching-2021-03-serverlessdeploymentbuck-t3kpj3way537.s3.ap-northeast-2.amazonaws.com/public";
 
 export default class ImageView extends Component {
-  setup() {
-    this.state = {
-      imageURL: "",
-    }
-
-    this.loadImage();
-  }
-
 	template() {
-		const { imageURL } = this.state;
+		const { filePath } = this.props;
 
 		return `
     <div class="content">
-      <img src=${imageURL}>
+      <img src="${API_ENDPOINT}${filePath}">
     </div>
     `;
 	}
@@ -38,17 +30,5 @@ export default class ImageView extends Component {
 
   beforeUnmount() {
     removeEventListener("keydown", this.onESC);
-  }
-
-  loadImage() {
-    const { filePath } = this.props;
-
-    const imageURL = fetch(`${API_ENDPOINT}${filePath}`)
-    .then((response) => response.blob())
-    .then(blob => {
-      return URL.createObjectURL(blob);
-    });
-
-    this.setState({ imageURL });
   }
 }
