@@ -50,7 +50,7 @@ export default class Component {
   beforeUpdate() {}
   afterUpdate() {}
   beforeUnmount() {}
-  
+
   update(newTarget) {
     if (newTarget && newTarget !== this.target) {
       this.target = newTarget;
@@ -59,8 +59,7 @@ export default class Component {
 
     if (!this.isMountFinished) {
       this.lifeCycle();
-    } 
-    else {
+    } else {
       // debounce
       cancelAnimationFrame(this.updateID);
       this.updateID = requestAnimationFrame(this.lifeCycle.bind(this));
@@ -74,9 +73,11 @@ export default class Component {
     if (this.isMountFinished) this.afterUpdate();
 
     if (!this.isMountFinished) {
-      this.setEvents();
-      this.afterMount();
-      this.isMountFinished = true;
+      setTimeout(() => {
+        this.setEvents();
+        this.isMountFinished = true;
+        this.afterMount();
+      }, 0);
     }
   }
 

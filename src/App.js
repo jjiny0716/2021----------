@@ -1,6 +1,7 @@
 import Component from "./core/Component.js";
 
 import Loading from "./components/Loading.js";
+import ErrorModal from './components/ErrorModal.js';
 import Breadcrumb from "./components/Breadcrumb.js";
 import Nodes from "./components/Nodes.js";
 import ImageView from "./components/ImageView.js";
@@ -14,6 +15,7 @@ export default class App extends Component {
           id: null,
         },
       ],
+			isErrorModalOpen: false,
       isImageViewOpen: false,
       filePath: null,
       isLoading: false,
@@ -21,12 +23,13 @@ export default class App extends Component {
   }
 
   template() {
-    const { isImageViewOpen, isLoading } = this.state;
+    const { isErrorModalOpen, isImageViewOpen, isLoading } = this.state;
 
     return `
-		${isLoading ? `<div class="Modal Loading" data-component="Loading"></div>` : ""}
     <nav class="Breadcrumb" data-component="Breadcrumb"></nav>
-    <div class="Nodes" data-component="Nodes"></div>
+		<div class="Nodes" data-component="Nodes"></div>
+		${isLoading ? `<div class="Modal Loading" data-component="Loading"></div>` : ""}
+		${isErrorModalOpen ? `<div class="ErrorModal Modal" data-component="ErrorModal"></div>` : ""}
     ${isImageViewOpen ? `<div class="ImageViewer Modal" data-component="ImageView"></div>` : ""}
     `;
   }
@@ -35,6 +38,13 @@ export default class App extends Component {
     switch (name) {
       case "Loading":
         return new Loading(target);
+			case "ErrorModal":
+				return new ErrorModal(target, () => {
+					const { closeErrorModal } = this;
+					return {
+						closeErrorModal: closeErrorModal.bind(this),
+					}
+				});
       case "Breadcrumb":
         return new Breadcrumb(target, () => {
           const { goToPreviousDirectoryById } = this;
@@ -46,7 +56,7 @@ export default class App extends Component {
         });
       case "Nodes":
         return new Nodes(target, () => {
-          const { goToPreviousDirectory, goToNextDirectory, showImageView, showLoadingUI, removeLoadingUI } = this;
+          const { goToPreviousDirectory, goToNextDirectory, showImageView, showLoadingUI, removeLoadingUI, showErrorModal } = this;
           const { path } = this.state;
           const { id } = path[path.length - 1];
           return {
@@ -56,6 +66,7 @@ export default class App extends Component {
             showImageView: showImageView.bind(this),
 						showLoadingUI: showLoadingUI.bind(this),
 						removeLoadingUI: removeLoadingUI.bind(this),
+						showErrorModal: showErrorModal.bind(this),
           };
         });
       case "ImageView":
@@ -76,6 +87,15 @@ export default class App extends Component {
 
   removeLoadingUI() {
     this.setState({ isLoading: false });
+  }
+
+	showErrorModal() {
+		this.goToPreviousDirectory();
+    this.setState({ isErrorModalOpen: true });
+  }
+
+  closeErrorModal() {
+    this.setState({ isErrorModalOpen: false });
   }
 
   goToPreviousDirectory() {

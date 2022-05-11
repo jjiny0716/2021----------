@@ -7,16 +7,15 @@ const directoryCache = {};
 export default class Nodes extends Component {
   setup() {
     this.state = {
-      currentId: null,
       directoryData: [],
+      isRoot: true,
     };
-    this.getDirectoryData();
+    this.currentId = null;
   }
 
   template() {
-    const { directoryData } = this.state;
-    const isRoot = (directoryData[0] && directoryData[0].parent === null) || directoryData.length === 0;
-
+    const { directoryData, isRoot } = this.state;
+    
     return `
     ${
       !isRoot
@@ -59,37 +58,46 @@ export default class Nodes extends Component {
     });
   }
 
+  afterMount() {
+    this.getDirectoryData();
+  }
+
   afterUpdate() {
     const { id } = this.props;
-    const { currentId } = this.state;
-    if (id !== currentId) this.getDirectoryData();
+    if (id !== this.currentId) this.getDirectoryData();
   }
 
   async getDirectoryData() {
-    // 캐시된 데이터가 있으면 이용
     const { id } = this.props;
+    this.currentId = id;
+    // 캐시된 데이터가 있으면 이용
+    
     if (directoryCache[id]) {
       this.setState({
-        currentId: id,
         directoryData: directoryCache[id],
+        isRoot: !directoryCache[id][0].parent,
       });
 
       return;
     }
 
-    const { showLoadingUI, removeLoadingUI } = this.props;
+    const { showLoadingUI, removeLoadingUI, showErrorModal } = this.props;
     showLoadingUI();
 
-    const directoryData = await (id === null ? directoryClient.getRootDirectory() : directoryClient.getDirectoryById(id));
+    try {
+      const directoryData = await (id === null ? directoryClient.getRootDirectory() : directoryClient.getDirectoryById(id));
 
-    // 얻은 데이터 캐싱
-    directoryCache[id] = directoryData;
-
-    this.setState({
-      currentId: id,
-      directoryData,
-    });
-    removeLoadingUI();
+      // 얻은 데이터 캐싱
+      directoryCache[id] = directoryData;
+      this.setState({
+        directoryData,
+        isRoot: !directoryData[0].parent,
+      });
+      removeLoadingUI();
+    } catch {
+      removeLoadingUI();
+      showErrorModal();
+    }
   }
 
   getNodeElement({ id, type, name }) {

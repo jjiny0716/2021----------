@@ -1,14 +1,22 @@
 const API_ENDPOINT = "https://zl3m4qq0l9.execute-api.ap-northeast-2.amazonaws.com/dev";
 
+async function getRequest(url) {
+  const response = await fetch(url);
+  
+  if (!response.ok) {
+    throw new Error("오류가 발생했습니다.");
+  }
+
+  return await response.json();
+}
+
 class DirectoryClient {
   async getRootDirectory() {
-    const response = await fetch(API_ENDPOINT);
-    return await response.json();
+    return await getRequest(API_ENDPOINT);
   }
 
   async getDirectoryById(id) {
-    const response = await fetch(`${API_ENDPOINT}/${id}`);
-    return await response.json();
+    return await getRequest(`${API_ENDPOINT}/${id}`);
   }
 }
 
